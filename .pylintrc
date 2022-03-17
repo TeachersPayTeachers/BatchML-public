@@ -1,0 +1,8 @@
+[pylint]
+disable=
+    C,
+    R,
+    expression-not-assigned,
+ignore=env.py
+ignore-patterns=rev_.*\.py
+max-line-length=120

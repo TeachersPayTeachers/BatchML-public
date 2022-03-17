@@ -1,0 +1,21 @@
+# Distribution / packaging
+.DS_Store
+venv/
+
+.*env*
+
+# emacs
+\#*#
+*.*~
+
+.vscode
+
+.env.dev
+!/.env.example
+.user.yml
+
+.idea/
+*.bash
+*credentials.json
+
+.*.swp

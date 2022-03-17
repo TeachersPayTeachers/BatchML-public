@@ -1,0 +1,22 @@
+steps:
+- name: 'docker.io/library/python:3.8'
+  id: Unit Tests
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - 'pip install -r requirements.txt && export AIRFLOW_ENVIRONMENT=${_AIRFLOW_ENVIRONMENT} && export AIRFLOW_HOME=$(pwd) && export COMPOSER_LOCAL_STORAGE=$(pwd) && export PYTHONPATH=$$PYTHONPATH:$(pwd) && pytest tests'
+- name: 'docker.io/library/python:3.8'
+  id: Integration Tests
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - 'pip install -r requirements.txt && export AIRFLOW_ENVIRONMENT=${_AIRFLOW_ENVIRONMENT} && export AIRFLOW_HOME=$(pwd) && export COMPOSER_LOCAL_STORAGE=$(pwd) && export PYTHONPATH=$$PYTHONPATH:$(pwd) && pre-commit run --files dags/* tests/**/*'
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  id: Deploy DAGs
+  entrypoint: bash
+  args: [ '-c', 'echo "Deploying $BRANCH_NAME DAGs to ${_AIRFLOW_ENVIRONMENT}" && find dags -mindepth 1 -maxdepth 1 -print0 | xargs -0 -n1 gcloud composer environments storage dags import --environment batchml-${_AIRFLOW_ENVIRONMENT} --source']
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  id: Deploy data
+  entrypoint: bash
+  args: [ '-c', 'echo "Deploying $BRANCH_NAME data to ${_AIRFLOW_ENVIRONMENT}" && find data -mindepth 1 -maxdepth 1 -print0 | xargs -0 -n1 gcloud composer environments storage data import --environment batchml-${_AIRFLOW_ENVIRONMENT} --source']
+timeout: 900s

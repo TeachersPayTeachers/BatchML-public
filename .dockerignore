@@ -1,0 +1,45 @@
+.vscode/
+**/*.swp
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+
+# C extensions
+**/*.so
+**/*.tgz
+# Override to allow tgz as helm dependent charts
+!**/charts/*.tgz
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+**/.pytest_cache/
+**/.mypy_cache/
+
+# Translations
+**/*.mo
+**/*.pot
+
+# Environments
+.*env*
+!.env.example
+!.env.sample
+
+# Pyre type checker
+.pyre/
+
+.idea/
+.vscode/
+

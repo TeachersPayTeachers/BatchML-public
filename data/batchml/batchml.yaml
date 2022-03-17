@@ -1,0 +1,16 @@
+global:
+  schedule: "0 15 * * *"
+  archive_schedule: "0 16 * * *"
+test:
+  target_dataset: dev_data_science
+prod:
+  target_dataset: data_science
+models:
+  github_forks:
+    name: GitHub Forks
+    description: |
+      Toy problem for example. Predict number of forks per repo from a few basic fields.
+    url: https://www.kaggle.com/bigquery/samples?select=github_timeline
+    versions:
+      v1:
+        note: First version.
