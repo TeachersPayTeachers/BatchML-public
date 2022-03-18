@@ -50,28 +50,70 @@ See `LICENSE.md` for the standard MIT license.
 
 # Example Setup
 
-The following steps are needed to get the sample model in this repo running:
+The following steps are needed to get the sample model in this repo running. 
+
+Note that this does not include the steps for local development and iteration from a laptop.
+See the section below for information on how to do that.
 
 ## Google Cloud
 
-setup billing
+* https://console.cloud.google.com/getting-started
+* Create a new project, or select an existing one.
+* Add or create a Billing Account, and link it to your project.
 
-## Clone
+## Fork the Repo
 
-the repo
+You're going to want to use your own copy of this repo, so that you can add to it, do local development, etc!
 
 ## Composer
 
 [Composer](https://cloud.google.com/composer) is the name used by GCP for it's managed [Airflow](https://airflow.apache.org/) service. Airflow is an open source scheduling and workflow orchestration
-framework written in Python.
+framework written in Python. BatchML is a system for creating Airflow DAGs.
+
+For a real project, you probably want to set up two Composer environments, one for test, and one for prod.
+For now, just set up a single environment.
+
+* https://console.cloud.google.com/composer will redirect you to a page where you can enable Composer. Do so.
+(It takes a few minutes.)
+* Create a Composer 2 environment. You must call it `batchml-prod`, for the Deploy step below to work. 
+* You can mostly stick with the defaults. You definitely only need a Small environment. 
+* For the purposes of this demo, use `us-east1` as the location. If you change it, you'll also need to change the location in `cloudbuild.yaml`.
+* (It takes around 15 minutes to come up.)
+* Once the Composer cluster is up, there should be a link to the "Airflow webserver". You can click the link 
+to see just the default `airflow_monitoring` DAG, which should be running successfully.
 
 ## Build
 
+For a real project, you probably sent to set up two Build Triggers -- one for the test environment and one for
+prod. It's handy to have the test environment build and deploy with every commit. The prod environment should
+look like the below -- require a manual button-push to deploy the `main` branch.
+
+* Set up a Trigger at https://console.cloud.google.com/cloud-build/triggers/add . Give it a name like
+`deploy-batchml-main`. 
+* The Event should be "Manual invocation". 
+* Connect a new repository, and point it at
+your fork of this repo (you may need to give Google Cloud Build access to the repository as part of the
+auth flow). 
+* The Configuration defaults (use `cloudbuild.yaml` in the repo) should work.
+* Add a Substitution Variable called `_AIRFLOW_ENVIRONMENT` with value `prod`.
+* Save it.
+
 ## Deploy
+
+* In the Cloud Build console, click "Run" to start the test, build, and deploy process. It takes about 10
+minutes, annoyingly.
+* In the Airflow console, turn off the running DAGs for `github_forks` for now. They'll fail if they run.
+
+## Train
+
+* In the Airflow console, click @@@ to start 
+
+## Start Prediction
 
 ## Set Version
 
 ## Logging, Monitoring, and Alerting
 
 
+# Local Development
 
