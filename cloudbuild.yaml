@@ -14,9 +14,9 @@ steps:
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk
   id: Deploy DAGs
   entrypoint: bash
-  args: [ '-c', 'echo "Deploying $BRANCH_NAME DAGs to ${_AIRFLOW_ENVIRONMENT}" && find dags -mindepth 1 -maxdepth 1 -print0 | xargs -0 -n1 gcloud composer environments storage dags import --environment batchml-${_AIRFLOW_ENVIRONMENT} --location us-east1 --source']
+  args: [ '-c', 'echo "Deploying $BRANCH_NAME DAGs to ${_AIRFLOW_ENVIRONMENT}" && find dags -mindepth 1 -maxdepth 1 -print0 | xargs -0 -n1 gcloud composer environments storage dags import --environment batchml-${_AIRFLOW_ENVIRONMENT} --location US --source']
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk
   id: Deploy data
   entrypoint: bash
-  args: [ '-c', 'echo "Deploying $BRANCH_NAME data to ${_AIRFLOW_ENVIRONMENT}" && find data -mindepth 1 -maxdepth 1 -print0 | xargs -0 -n1 gcloud composer environments storage data import --environment batchml-${_AIRFLOW_ENVIRONMENT} --location us-east1 --source']
+  args: [ '-c', 'echo "Deploying $BRANCH_NAME data to ${_AIRFLOW_ENVIRONMENT}" && find data -mindepth 1 -maxdepth 1 -print0 | xargs -0 -n1 gcloud composer environments storage data import --environment batchml-${_AIRFLOW_ENVIRONMENT} --location US --source']
 timeout: 900s

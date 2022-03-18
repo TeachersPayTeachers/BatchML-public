@@ -77,10 +77,13 @@ For now, just set up a single environment.
 (It takes a few minutes.)
 * Create a Composer 2 environment. You must call it `batchml-prod`, for the Deploy step below to work. 
 * You can mostly stick with the defaults. You definitely only need a Small environment. 
-* For the purposes of this demo, use `us-east1` as the location. If you change it, you'll also need to change the location in `cloudbuild.yaml`.
+* For the purposes of this demo, use `US` as the location. If you change it, you'll also need to change the location in `cloudbuild.yaml`.
 * (It takes around 15 minutes to come up.)
 * Once the Composer cluster is up, there should be a link to the "Airflow webserver". You can click the link 
 to see just the default `airflow_monitoring` DAG, which should be running successfully.
+* Open the Compose environment you just created, click on Environment Variables, and add two variables:
+  * `COMPOSER_LOCAL_STORAGE` : `/home/airflow/gcs`
+  * `AIRFLOW_ENVIRONMENT`: `prod`
 
 ## Build
 
@@ -98,15 +101,30 @@ auth flow).
 * Add a Substitution Variable called `_AIRFLOW_ENVIRONMENT` with value `prod`.
 * Save it.
 
+Now, give Build permissions to push to Composer and Google Cloud Storage.
+
+* Open https://console.cloud.google.com/iam-admin/iam .
+* Find the Principal with domain `cloudbuild.gserviceaccount.com`. It should have "Cloud Build Service Account"
+already. Edit it, and add "Composer Worker".
+
 ## Deploy
 
 * In the Cloud Build console, click "Run" to start the test, build, and deploy process. It takes about 10
 minutes, annoyingly.
-* In the Airflow console, turn off the running DAGs for `github_forks` for now. They'll fail if they run.
+* In the Airflow console, turn off the `archiving` and `v1_scoring` DAGs for `github_forks` for now. 
+They'll fail if they run, because there's no model yet. (They probably failed already, as Airflow will try
+to run everything with a schedule on first startup.)
+
+## BigQuery Setup
+
+* BigQuery needs a dataset to write the views, tables, and models to. The `prod` model is configured in
+`batchml.yaml` to use `data_science`, so create a dataset with that name in your
+[BigQuery](https://console.cloud.google.com/bigquery) project. Use `US` as a location and don't
+expire tables.
 
 ## Train
 
-* In the Airflow console, click @@@ to start 
+* In the Airflow console, click the Play icon, then Trigger DAG on the `training` row to start it.
 
 ## Start Prediction
 
