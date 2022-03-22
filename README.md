@@ -132,12 +132,106 @@ expire tables.
 
 * Turn on the `scoring` DAG in Airflow. If it doesn't kick off on its own within a minute or so, press the Play icon
 to start it.
-* You can click into the `scoring` DAG to watch it run. It _should_ run all the way through and be marked "success". 
+* You can click into the `scoring` DAG to watch it run. It _should_ run all the way through and be marked "success".
+
+Reminder: If for any reason the Promotion step doesn't run, such as Validation failing, the `staging` table will still
+exist, and Scoring will fail the next time through. Manually delete the Staging table to get the run to work. 
 
 ## Set Version
 
+In the BigQuery console, run:
+
+```
+CREATE OR REPLACE VIEW data_science.github_forks_preds AS
+SELECT * FROM data_science.github_forks_v1_preds
+```
+
+This will allow the `archiving` DAG to run. Go ahead and enable that DAG and trigger it.
+
 ## Logging, Monitoring, and Alerting
 
+The easiest approach to monitoring is to set up Log-based Alerts in Google Cloud Monitoring.
+[Google Cloud has documentation](https://cloud.google.com/composer/docs/how-to/managing/monitoring-environments).
 
 # Local Development
+
+In general, it'll be easiest to run only unit tests (not a local copy of Airflow) on your local laptop. 
+The below steps should be adequate to set up your environment.
+
+1. `cp .env.example .env` and review for any needed changes.
+2. `pipenv install --dev`
+3. `pipenv install pytest`
+4. `pipenv shell`
+5. `pre-commit install`
+
+At this point, committing to git will run pre-commits that clean up the code and lint it. You may need to commit twice
+if the pre-commit makes changes.
+
+You can also run `pytest tests`.
+
+# New Model Development
+
+Assuming you have developed a tested a BigQuery ML model, you'll need to create five files in
+`data/batchml/<model_code>/`, and
+to update `data/batchml/batchml.yaml`, as follows:
+
+1. Pick a global prefix for your model. For example, the demo model above uses `github_forks`. Using existing models
+for reference is recommended. You'll probably start with version `v1`, which we'll call `VERSION` here.
+2. Create `PREFIX_VERSION_training.sql`, which is a `SELECT` that will define a view used for model training. Be sure you
+avoid time-traveling as much as possible, and only provide the model with data that would be available at the time
+of scoring. It's unlikely that you'll need any jinja parameters in this file.
+3. Create `PREFIX_VERSION_train_model.sql`, which is a `CREATE MODEL` command. You'll need to parameterize with
+`{{target_dataset}}`,
+and optionally can use other jinja logic based on the `environment` variable, which is either `test` or `prod`.
+4. Create `PREFIX_VERSION_scoring.sql`, which is a `SELECT` that will define a view used for predictions. This should be
+as similar as possible to `PREFIX_VERSION_training.sql`, and it's recommended that you flag the small number of lines that
+are different, to make maintenance as easy as possible. Jinja variables are available, if needed.
+5. Create `PREFIX_VERSION_predicting.sql`, which is a `CREATE TABLE AS ... FROM ML.PREDICT`. You'll need to parameterize with
+`{{target_dataset}}`, and optionally can use other Jinja logic.
+6. Create `PREFIX_VERSION_validation.sql`, which is a `SELECT` that (important!) returns exactly one row of data, where
+each column is a test that must be either `true` or `false`. If any columns are false, the validation will fail, and
+predictions will not be promoted into production.
+7. Add a section to `batchml.yaml`. See below for the schema to that file.
+8. When you deploy, create a production view to point at the current version. See below.
+
+## batchml.yaml
+
+This file defines global and per-model configuration, as follows:
+
+* `global`
+  * `target_dataset` -- which dataset to write the model and tables to
+  * `schedule` -- standard cron-format for how often to predict
+  * `archive_schedule` -- standard cron-format for how often to archive
+  * `bigquery_location` -- what Google Cloud location to use for the BigQuery dataset
+* `test` and `prod` -- current environment determines which is used
+  * `target_dataset` and `schedule` -- over-rides `global`, if present
+* `models`
+  * <`code`> -- prefix to use to define the model and table/view names
+    * `name` -- not used in code
+    * `description` -- not used in code
+    * `url` -- not used in code, where to go for more information
+    * `target_dataset` -- could be used to write to a different dataset from global
+    * `schedule`, `archive_schedule` -- could be used to run predictions at a different frequency
+    * `versions`
+      * <`version`> -- infix used to define the model and table/view names
+        * `note` -- not used in code
+
+
+# Versioning
+
+You can and should create multiple model versions, especially when testing and deploying new versions
+of existing models.
+
+Everything except the archive process is versioned. The archive process depends on the version view
+(below) being defined, and always archives whichever set of predictions is considered "production".
+
+## Version View
+
+The following view *must* be created *manually*. To upgrade versions in production, simply edit this
+view in the BigQuery console.
+
+```
+CREATE OR UPDATE VIEW target_dataset.PREFIX_preds AS
+SELECT * FROM target_dataset.PREFIX_v1_preds
+```
 
