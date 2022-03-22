@@ -5,12 +5,12 @@ steps:
   args:
   - -c
   - 'pip install -r requirements.txt && export AIRFLOW_ENVIRONMENT=${_AIRFLOW_ENVIRONMENT} && export AIRFLOW_HOME=$(pwd) && export COMPOSER_LOCAL_STORAGE=$(pwd) && export PYTHONPATH=$$PYTHONPATH:$(pwd) && pytest tests'
-- name: 'docker.io/library/python:3.8'
-  id: Integration Tests
-  entrypoint: /bin/sh
-  args:
-  - -c
-  - 'pip install -r requirements.txt && export AIRFLOW_ENVIRONMENT=${_AIRFLOW_ENVIRONMENT} && export AIRFLOW_HOME=$(pwd) && export COMPOSER_LOCAL_STORAGE=$(pwd) && export PYTHONPATH=$$PYTHONPATH:$(pwd) && pre-commit run --files dags/* tests/**/*'
+# - name: 'docker.io/library/python:3.8'
+#   id: Integration Tests
+#   entrypoint: /bin/sh
+#   args:
+#   - -c
+#   - 'pip install -r requirements.txt && export AIRFLOW_ENVIRONMENT=${_AIRFLOW_ENVIRONMENT} && export AIRFLOW_HOME=$(pwd) && export COMPOSER_LOCAL_STORAGE=$(pwd) && export PYTHONPATH=$$PYTHONPATH:$(pwd) && pre-commit run --files dags/* tests/**/*'
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk
   id: Deploy DAGs
   entrypoint: bash
