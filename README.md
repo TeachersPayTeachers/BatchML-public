@@ -126,8 +126,13 @@ expire tables.
 ## Train
 
 * In the Airflow console, click the Play icon, then Trigger DAG on the `training` row to start it.
+* It should take a few minutes to build. You can see the model in the BigQuery console once it's built.
 
 ## Start Prediction
+
+* Turn on the `scoring` DAG in Airflow. If it doesn't kick off on its own within a minute or so, press the Play icon
+to start it.
+* You can click into the `scoring` DAG to watch it run. It _should_ run all the way through and be marked "success". 
 
 ## Set Version
 
