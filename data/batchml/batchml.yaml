@@ -1,7 +1,7 @@
 global:
   schedule: "0 15 * * *"
   archive_schedule: "0 16 * * *"
-  location: "US"
+  bigquery_location: "US"
 test:
   target_dataset: dev_data_science
 prod:

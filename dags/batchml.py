@@ -112,7 +112,7 @@ def generate_scoring_dag(model_code, version_code, dag_id):
             "retries": 1,
             "retry_delay": timedelta(seconds=60),
             "depends_on_past": False,
-            "location": this_config["location"],
+            "location": this_config["bigquery_location"],
             "use_legacy_sql": False
         },
         concurrency=1,
@@ -176,7 +176,7 @@ def generate_archive_dag(model_code, dag_id):
             "retries": 1,
             "retry_delay": timedelta(seconds=60),
             "depends_on_past": False,
-            "location": this_config["location"],
+            "location": this_config["bigquery_location"],
             "use_legacy_sql": False
         },
         concurrency=1,
@@ -222,7 +222,7 @@ def generate_training_dag(model_code, version_code, dag_id):
             "retries": 1,
             "retry_delay": timedelta(seconds=60),
             "depends_on_past": False,
-            "location": this_config["location"],
+            "location": this_config["bigquery_location"],
             "use_legacy_sql": False
         },
         concurrency=1,

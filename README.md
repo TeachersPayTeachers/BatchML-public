@@ -77,7 +77,8 @@ For now, just set up a single environment.
 (It takes a few minutes.)
 * Create a Composer 2 environment. You must call it `batchml-prod`, for the Deploy step below to work. 
 * You can mostly stick with the defaults. You definitely only need a Small environment. 
-* For the purposes of this demo, use `US` as the location. If you change it, you'll also need to change the location in `cloudbuild.yaml`.
+* For the purposes of this demo, use `us-east1` as the location. If you change it, you'll also need to change the 
+location in `cloudbuild.yaml`. Note that BigQuery will be using location `US`.
 * (It takes around 15 minutes to come up.)
 * Once the Composer cluster is up, there should be a link to the "Airflow webserver". You can click the link 
 to see just the default `airflow_monitoring` DAG, which should be running successfully.
